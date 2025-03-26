@@ -1,65 +1,54 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { Home, Info, Phone } from "lucide-react";
+import ToggleButton from "./ToggleButton";
+import { useSidebar } from "@/context/sidebarContext";
+import Image from "next/image";
+import iconClosed from "@/assets/icon2.png";
+import iconOpen from "@/assets/icon.png";
 
 const Sidebar: React.FC = () => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const pathname = usePathname(); // Obtém a URL atual
-
-  // Carregar estado do localStorage ao montar
-  useEffect(() => {
-    const savedState = localStorage.getItem("sidebarCollapsed");
-    if (savedState !== null) {
-      setIsSidebarCollapsed(savedState === "true");
-    }
-  }, []);
-
-  // Salvar estado no localStorage sempre que mudar
-  useEffect(() => {
-    localStorage.setItem("sidebarCollapsed", String(isSidebarCollapsed));
-  }, [isSidebarCollapsed]);
-
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed(!isSidebarCollapsed);
-  };
+  const { isSidebarCollapsed } = useSidebar();
+  const pathname = usePathname();
 
   const menuItems = [
-    { name: "Página Inicial", path: "/" },
-    { name: "Sobre", path: "/about" },
-    { name: "Contatos", path: "/contatos" },
+    { name: "Home", path: "/", icon: <Home size={20} /> },
+    { name: "Sobre", path: "/about", icon: <Info size={20} /> },
+    { name: "Contatos", path: "/contatos", icon: <Phone size={20} /> },
   ];
 
   return (
     <div
       className={`${
         isSidebarCollapsed ? "w-20" : "w-64"
-      } h-screen bg-gray-900 text-[#9197B3] p-5 transition-all duration-300 fixed left-0 top-0`}
+      }   text-[#9197B3] p-4 transition-all duration-400 shadow-lg flex flex-col bg-white`}
     >
-      <button
-        onClick={toggleSidebar}
-        className={`${
-          isSidebarCollapsed ? "w-full text-center" : "text-left"
-        } text-white mb-5 p-2 bg-gray-700 rounded`}
-      >
-        {isSidebarCollapsed ? "A" : "Fechar"}
-      </button>
-      <h2 className={`text-2xl font-bold mb-5 ${isSidebarCollapsed ? "text-center" : ""}`}>
-        {isSidebarCollapsed ? "T" : "TechHelp DMW"}
-      </h2>
+      <p className="text-sm">v.1.0.0</p>
+      <div className="flex justify-center items-center  ">
+  <Image alt="icon" src={isSidebarCollapsed ? iconOpen : iconClosed} width={100} height={100} />
+</div>
       <ul>
         {menuItems.map((item) => (
           <li key={item.path} className="mb-3">
             <Link href={item.path}>
               <span
-                className={`p-2 rounded block w-full cursor-pointer ${
-                  isSidebarCollapsed ? "text-center" : ""
+                className={`flex items-center p-2 rounded w-full cursor-pointer ${
+                  isSidebarCollapsed ? "justify-center" : ""
                 } ${
-                  pathname === item.path ? "bg-[#5932EA] text-white" : "hover:bg-gray-700"
+                  pathname === item.path
+                    ? "bg-[#0C8CE9] text-white"
+                    : "hover:bg-[#0c8de950]"
                 }`}
               >
-                {isSidebarCollapsed ? item.name[0] : item.name}
+                {item.icon}
+                <span
+                  className={`ml-2 ${isSidebarCollapsed ? "hidden" : "block"}`}
+                >
+                  {item.name}
+                </span>
               </span>
             </Link>
           </li>

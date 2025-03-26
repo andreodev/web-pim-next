@@ -1,83 +1,131 @@
 // src/components/TableDemo.tsx
-"use client"
+"use client";
 
 import { useState } from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "./ui/button";
+import { TPchamadas } from "@/hooks/DTO/DTOchamadas";
 
-type TPinvoice = {
-  invoice: string;
-  paymentStatus: string;
-  totalAmount: string;
-  paymentMethod: string;
-}[];
-
+// Definindo as props que o componente TableDemo vai receber
 interface TableDemoProps {
-  invoices: TPinvoice;
+  data: TPchamadas;
 }
 
-const itemsPerPage = 6; 
+const itemsPerPage = 6;
 
-export function TableDemo({ invoices }: TableDemoProps) {
+export function TableDemo({ data }: TableDemoProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(invoices.length / itemsPerPage);
+  // Cálculo do número total de páginas
+  const totalPages = Math.ceil(data.length / itemsPerPage);
 
+  // Índices para fatiar os dados e exibir apenas a página atual
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentInvoices = invoices.slice(startIndex, endIndex);
+  const currentInvoices = data.slice(startIndex, endIndex);
 
   return (
-    <div>
-      <Table>
-        <TableCaption>Mostrando dados de 1 a {totalPages} de {invoices.length} de entradas</TableCaption>
+    <div className="overflow-x-auto w-full p-4">
+      <Table className="w-full min-w-full table-auto border-collapse">
+        {/* Cabeçalho da tabela */}
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Invoice</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Method</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
+          <TableRow className="bg-gray-100 text-[#B5B7C0]">
+            <TableHead className="w-[200px] px-4 py-2 text-left text-[#B5B7C0]">
+              Nome
+            </TableHead>
+            <TableHead className="px-4 py-2 text-left text-[#B5B7C0]">
+              Setor
+            </TableHead>
+            <TableHead className="px-4 py-2 text-center text-[#B5B7C0]">
+              Quem atendeu?
+            </TableHead>
+            <TableHead className="px-4 py-2 text-center text-[#B5B7C0]">
+              Prioridade
+            </TableHead>
+            <TableHead className="px-4 py-2 text-left w-[120px] text-[#B5B7C0]">
+              Status
+            </TableHead>
           </TableRow>
         </TableHeader>
+
+        {/* Corpo da tabela */}
         <TableBody>
-          {currentInvoices.map((invoice) => (
-            <TableRow key={invoice.invoice}>
-              <TableCell className="font-medium">{invoice.invoice}</TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentMethod}</TableCell>
-              <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+          {currentInvoices.map((statusTable) => (
+            <TableRow key={statusTable.id} className="border-b text-[#292D32]">
+              <TableCell className="px-4 py-2 font-medium ">
+                {statusTable.name}
+              </TableCell>
+              <TableCell className="px-4 py-2 ">{statusTable.sector}</TableCell>
+              <TableCell className="px-4 py-2 text-center">
+                {statusTable.whoAnswered}
+              </TableCell>
+              {/* condição das cores da prioridade */}
+              <TableCell
+                className={
+                  statusTable.level === "Alta"
+                    ? "px-4 py-2 text-center text-red-500"
+                    : statusTable.level === "Média"
+                    ? "px-4 py-2 text-center text-yellow-500"
+                    : "px-4 py-2 text-center text-green-500"
+                }
+              >
+                {statusTable.level}
+              </TableCell>
+              {/* condição das cores do Status */}
+              <TableCell className="px-4 py-2 w-[120px]">
+                <p
+                  className={`${
+                    statusTable.status === "Atendido"
+                      ? "bg-green-300 border-green-500 text-green-800"
+                      : statusTable.status === "Não Atendido"
+                      ? "bg-red-300 border-red-500 text-red-800"
+                      : "bg-gray-300 border-gray-500 text-gray-800"
+                  } w-full text-center font-medium border-2 rounded p-1`}
+                >
+                  {statusTable.status}
+                </p>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
+
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
+            <TableCell
+              colSpan={4}
+              className="text-center text-sm text-gray-500 py-2"
+            >
+              Total de {totalPages} páginas e {data.length} chamados.
+            </TableCell>
           </TableRow>
         </TableFooter>
       </Table>
-
-      <div className="flex justify-center space-x-2 mt-4">
-        {/* botões de página dinamicamente */}
-        {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-          <button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            className={`px-4 py-2 rounded ${
-              currentPage === page ? "bg-blue-500 text-white" : "bg-gray-300"
-            }`}
-          >
-            {page}
-          </button>
-        ))}
+      {/* Navegação de páginas */}
+      <div className="flex flex-wrap justify-center gap-2 mt-4">
+        {/* Botões de navegação de página */}
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+          (page) => (
+            <Button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-4 py-2 rounded-md cursor-pointer transition-colors duration-200 ${
+                currentPage === page
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-300 hover:bg-gray-400"
+              }`}
+            >
+              {page}
+            </Button>
+          )
+        )}
       </div>
     </div>
   );
